@@ -160,7 +160,7 @@ has _chrome_mech => ( is => 'lazy',
                       default => sub {
                           my ($self) = @_;
                          my $mech = WWW::Mechanize::Chrome->new(
-                             $self->mech_arguments,
+                             %{ $self->mech_arguments },
                              );
                           $mech->allow( javascript => 1 );
                           return $mech;
@@ -263,16 +263,25 @@ sub get_watched {
             }
 
             my $norm = $self->normalise_names->($series_title);
-            my $trakt_show_slug = $self->already_seen()->{$norm}{show}{ids}{slug};
-
-            if (not $trakt_show_slug) {
-                for my $key (sort keys %{$self->already_seen}) {
-                    say "$key: " . $self->already_seen->{$key};
-                }
-                die "No series trakt id for '$series_title'";
-            } elsif ($trakt_show_slug eq '__SKIP__') {
-                next;
+            my $trakt_show_slug;
+            if(%{ $self->already_seen } && $self->already_seen->{$norm}) {
+                $trakt_show_slug = $self->already_seen()->{$norm}{show}{ids}{slug};
+            } else {
+                $trakt_show_slug = $self->_slugify_name($norm);
+                $self->already_seen()->{$norm} = {
+                    show => {ids => {slug => $trakt_show_slug } },
+                    seasons => [],
+                };
             }
+
+            # if (not $trakt_show_slug) {
+            #     for my $key (sort keys %{$self->already_seen}) {
+            #         say "$key: " . $self->already_seen->{$key};
+            #     }
+            #     die "No series trakt id for '$series_title'";
+            # } elsif ($trakt_show_slug eq '__SKIP__') {
+            #     next;
+            # }
             # We've already seen it?
             next if exists $episodes{$trakt_show_slug}{$season};
 
@@ -348,6 +357,15 @@ sub _run_callback {
     $self->per_show_callback->($slug, $season, $episodes);
     return;
     
+}
+
+sub _slugify_name {
+    my ($self, $name) = @_;
+
+    $name = lc($name);
+    $name =~ s/\s+/-/;
+
+    return $name;
 }
 
 1;
