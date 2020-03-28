@@ -1,0 +1,75 @@
+=pod
+
+=encoding utf8
+
+=head1 The Prime::Watched module
+
+This is the I<README> for the L<Prime::Watched> module, a tool to
+extract your "watched TV shows" from Amazon Prime.
+
+=head2 Documentation
+
+To read how to use L<Prime::Watched>, look at the embedded
+documentation in the module itself. Inside the distribution, you can
+view it formatted, using
+L<perldoc|http://perldoc.perl.org/perldoc.html>.
+
+    % perldoc lib/Prime/Watched.pm
+
+After the module is installed, you can use the module name instead of
+the file location:
+
+    % perldoc Prime::Watched
+
+You can also read the documentation on
+L<MetaCPAN|http://www.metacpan.org/module/Prime::Watched>.
+
+=head2 Installation
+
+You can install this module with one of the CPAN clients, which will
+resolve and install the dependencies:
+
+    % cpan Prime::Watched
+    % cpanm Prime::Watched
+
+If you have cloned the github repository, you can also install
+directly from the distribution directory, which will also install the
+dependencies:
+
+    % cpan .
+    % cpanm .
+
+You can also install this module manually from the checkout, which
+doesn't install dependencies:
+
+    % perl Makefile.PL
+    % make
+    % make test
+    % make install
+
+You probably won't want to do that unless you're fiddling with the
+module and only want to run the tests without installing anything.
+
+=head2 Source location
+
+=over
+
+=item Repository L<https://github.com/castaway/prime-watched>
+
+=item Issues/Tickets L<https://github.com/castaway/prime-watched/issues>
+
+=back
+
+=head2 Copyright and License
+
+You should have received a I<LICENSE> file, but the license is also noted
+in the module files. About the only thing you can't do is pretend that
+you wrote code that you didn't.
+
+=head2 Good luck!
+
+Enjoy,
+
+Jess Robinson, jrobinson@cpan.org
+
+=cut

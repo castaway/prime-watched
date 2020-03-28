@@ -2,7 +2,7 @@ package Prime::Watched;
 
 =head1 NAME
 
-Prime::Watched
+Prime::Watched - Exatrct your watched TV / Film data from your Amazon Prime account
 
 =head1 SYNOPSIS
 
@@ -40,6 +40,14 @@ Prime::Watched uses WWW::Mechanize::Chrome to retrieve the user's
 callback for each different show the user has watched, supplying all
 of the episodes that have been fully (at least 90%) watched.
 
+NOTE: As there is no API for this information, username + password are
+required to login, these are used to POST to the login form. Do not
+use this software if you if you have any doubts about it.
+
+UNSTABLE: On some runs chrome errors out, I have yet to discover why,
+on subsequent runs it works fine. Help with this issue would be
+appreciated.
+
 =head1 ATTRIBUTES
 
 =cut
@@ -54,6 +62,8 @@ use WWW::Mechanize::Chrome;
 use HTML::TreeBuilder;
 
 use Moo;
+
+our $VERSION = '0.01';
 
 =head2 username
 
@@ -255,10 +265,10 @@ sub get_watched {
                 $season = $show_tree->look_down(class => qr/\bdv-node-dp-title\b/)->right->as_text;
             }
             $season =~ s/^Season //;
-            say "series title: $series_title, season: '$season', release_year: $release_year";
+            # say "series title: $series_title, season: '$season', release_year: $release_year";
 
             if ($season =~ m/^\(/) {
-                say "This seems to be a film, or we suck at finding the season.  Skipping";
+                # say "This seems to be a film, or we suck at finding the season.  Skipping";
                 next;
             }
 
@@ -288,15 +298,15 @@ sub get_watched {
             for my $episode_elem ($show_tree->look_down(class => qr/\bjs-node-episode-container\b/)) {
                 my $title_elem = $episode_elem->look_down(class => qr/\b(js-episode-title-name|dv-episode-noplayback-title)\b/);
                 if (not $title_elem) {
-                    say "Odd, can't find title on $show_uri";
+                    # say "Odd, can't find title on $show_uri";
                     next;
                 }
                 my $title_text = $title_elem->as_text;
                 my ($episode_number, $episode_title) = $title_text =~ m/^(\d+)\. (.*)$/;
                 if (defined $episode_number) {
-                    say "Episode number: '$episode_number', episode_title: '$episode_title'";
+                    # say "Episode number: '$episode_number', episode_title: '$episode_title'";
                 } else {
-                    say "Strange title: '$title_text'";
+                    # say "Strange title: '$title_text'";
                 }
                 
                 # Ah-ha!  Within the episode, there may be a span with role="progressbar".  The aria-valuenow attribute is episode completion percentage.
@@ -306,10 +316,10 @@ sub get_watched {
                 if ($progressbar) {
                     $progress = $progressbar->attr('aria-valuenow');
                 }
-                say "Completion: ${progress}%";
+                # say "Completion: ${progress}%";
 
                 if (not defined $episode_number) {
-                    say "Skipping episode with no number for trakt";
+                    warn "Skipping episode with no number for trakt";
                 } elsif ($progress >= 90) {
                     push @{ $episodes{$trakt_show_slug}{$season} }, {
                         num => $episode_number,
@@ -325,11 +335,11 @@ sub get_watched {
         $page_num++;
         last if $page_num >= $self->pages;
         if ($page_num >= 99e99) {
-            say "Terminating early for debugging";
+            warn "Terminating early for debugging";
             exit;
         }
         
-        say "Getting new amazon history page (#$page_num): $next_uri";
+        # say "Getting new amazon history page (#$page_num): $next_uri";
         $mech->get($next_uri);
 
     }
@@ -367,5 +377,22 @@ sub _slugify_name {
 
     return $name;
 }
+
+=head1 SOURCE AVAILABILITY
+
+This source is in Github:
+
+	https://github.com/castaway/prime-watched/
+
+=head1 AUTHOR
+
+Jess Robinson, C<< <jrobinson@cpan.org> >>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright © 2019-2020, Jess Robinson, <jrobinson@cpan.org>. All rights reserved.
+You may redistribute this under the terms of the Artistic License 2.0.
+
+=cut
 
 1;
